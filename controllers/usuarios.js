@@ -1,34 +1,75 @@
-const {response, request} = require('express');
+const { response, request } = require('express');
+const bcryptjs = require('bcryptjs');
+const Usuario = require('../models/usuario');
+const { validate } = require('../models/usuario');
 
-const usuariosGet = (req = request, res = response) => {
+
+const usuariosGet = async(req = request, res = response) => {
+
+    const query = { estado: true };
+
+    const { limite = 5, desde = 0 } = req.query;
+
+    //const total = await Usuario.countDocuments(query);
+
+    //const usuarios = await Usuario.find( query )
+    //    .limit( Number( isNaN ( limite )? 5: limite) )
+    //    .skip( Number( isNaN( desde )? 0 : desde) );
+
+
+    // una forma de agrupar varias promesas en una
+    const [total, usuarios] = await Promise.all(
+        [
+        Usuario.countDocuments(query) , 
+        Usuario.find(query)
+            .limit(Number(isNaN(limite) ? 5 : limite))
+            .skip(Number(isNaN(desde) ? 0 : desde))
+        ]
+    );
+
     
-    const {q, nombre} = req.query;
-    
+
     res.json({
-        msg: 'get API - controlador',
-        q,
-        nombre
+        usuarios,
+        total
     });
 }
 
-const usuariosPost = (req = request, res = response) => {
-    
-    const {nombre, edad} = req.body;
-    
-    res.json({
-        msg: 'post API - controlador',
-        nombre,
-        edad
+const usuariosPost = async (req = request, res = response) => {
+
+    const { nombre, correo, password, rol} = req.body;    
+    const usuario = new Usuario({ nombre, correo, password, rol });
+
+    // Encriptar password
+    const salt = bcryptjs.genSaltSync(11);
+    usuario.password = bcryptjs.hashSync( password, salt );
+
+    // Guardar en BD
+    await usuario.save();
+
+    res.json({        
+        usuario
     });
 }
 
-const usuariosPut = (req = request, res = response) => {
+const usuariosPut = async (req = request, res = response) => {
 
-    const {id} = req.params;
+    const { id } = req.params;
+    const { _id, password, google, correo, ...resto } = req.body;
+    
+
+    // TODO validar contra base de datos
+    if ( password ) {
+        // Encriptar password
+        const salt = bcryptjs.genSaltSync(11);
+        resto.password = bcryptjs.hashSync(password, salt);
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate( id, resto  );
 
     res.json({
         msg: 'put API - controlador',
-        id
+        usuario
     });
 }
 const usuariosPatch = (req = request, res = response) => {
@@ -36,9 +77,17 @@ const usuariosPatch = (req = request, res = response) => {
         msg: 'patch API - controlador'
     });
 }
-const usuariosDelete = (req = request, res = response) => {
+const usuariosDelete = async (req = request, res = response) => {
+    const { id } = req.params;
+
+    // Borrado físico:
+    // const usuario = await Usuario.findByIdAndDelete(id);
+
+    // Borrado "lógico":
+    const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
+
     res.json({
-        msg: 'delete API - controlador'
+        usuario
     });
 }
 
@@ -50,3 +99,4 @@ module.exports = {
     usuariosPatch,
     usuariosDelete
 }
+
