@@ -34,7 +34,8 @@ const UsuarioSchema = Schema({
 
 // Quitar el campo versión y contraseña cuando desde el controlador se devuelve la llamada al postman (por ejemplo): es.json(...
 UsuarioSchema.methods.toJSON = function () {
-    const { __v, password, ...usuario } = this.toObject();
+    const { __v, password, _id, ...usuario } = this.toObject();
+    usuario.uid =  _id;    
     return usuario;
 }
 
