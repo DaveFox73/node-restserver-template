@@ -3,7 +3,7 @@ const bcryptjs = require('bcryptjs');
 const Usuario = require('../models/usuario');
 const { generarJWT } = require('../helpers/generar-jwt');
 
-const login = async (req = request, res = response) => {
+const login = async(req = request, res = response) => {
 
     const { correo, password } = req.body;
 
@@ -17,14 +17,14 @@ const login = async (req = request, res = response) => {
             });
         }
 
-        // Verificar si el usuario está activo
+        // Verificar si el usuario estÃ¡ activo
         if (!usuario.estado) {
             return res.status(400).json({
                 msg: 'Usuario / Password no son correctos - estado: false'
             });
         }
 
-        // Verificar la contraseña
+        // Verificar la contraseÃ±a
         const validPassword = bcryptjs.compareSync(password, usuario.password);
         if (!validPassword) {
             return res.status(400).json({
@@ -33,7 +33,7 @@ const login = async (req = request, res = response) => {
         }
 
         // Generar el JWT
-        const token = await generarJWT( usuario.id );
+        const token = await generarJWT(usuario.id);
 
         res.json({
             usuario,

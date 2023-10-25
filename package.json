@@ -17,9 +17,12 @@
     "express": "^4.17.1",
     "express-validator": "^6.9.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.11.17",
-    "nodemon": "^2.0.7",
+    "mongoose": "^5.12.12",
+    "mongoose-unique-validator": "^2.0.3",
     "to": "^0.2.9",
     "update": "^0.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }

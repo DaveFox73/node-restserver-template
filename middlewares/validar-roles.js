@@ -13,18 +13,18 @@ const esAdminRole = (req = request, res = response, next) => {
 
     if (rol !== 'ADMIN_ROLE') {
         return res.status(401).json({
-            msg: `${nombre} no es administrador - No puede realizar la acci�n`
+            msg: `${nombre} no es administrador - No puede realizar la acción`
         });
     }
-
 
     next();
 
 }
 
-const tieneRole = ( ...roles) => {
+// esto devuelve una función que se ejecutará desde el router...
+const tieneRole = (...roles) => {
     return (req = request, res = response, next) => {
-        
+
 
         if (!req.usuario) {
             return res.status(500).json({

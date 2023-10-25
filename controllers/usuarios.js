@@ -12,60 +12,66 @@ const usuariosGet = async(req = request, res = response) => {
 
     //const total = await Usuario.countDocuments(query);
 
+    // El await es una instrucci贸n bloqueante
+
     //const usuarios = await Usuario.find( query )
     //    .limit( Number( isNaN ( limite )? 5: limite) )
     //    .skip( Number( isNaN( desde )? 0 : desde) );
 
 
     // una forma de agrupar varias promesas en una
+    // promise.all() permie enviar un arreglo con todas las promesas a ejecutar
+    // y devuelve una colecci贸n de las n promesas que se han ejecutado
+    // desestructuraci贸n de arreglos (no de objetos)
+    // el primer resultado ser谩 el total y el segundo los usuarios (seg煤n filtro en ambos casos)
     const [total, usuarios] = await Promise.all(
         [
-        Usuario.countDocuments(query) , 
-        Usuario.find(query)
+            Usuario.countDocuments(query),
+            Usuario.find(query)
             .limit(Number(isNaN(limite) ? 5 : limite))
             .skip(Number(isNaN(desde) ? 0 : desde))
         ]
     );
 
-    
-
     res.json({
-        usuarios,
-        total
+        total,
+        usuarios
     });
 }
 
-const usuariosPost = async (req = request, res = response) => {
+const usuariosPost = async(req = request, res = response) => {
 
-    const { nombre, correo, password, rol} = req.body;    
+    const { nombre, correo, password, rol } = req.body;
     const usuario = new Usuario({ nombre, correo, password, rol });
 
     // Encriptar password
     const salt = bcryptjs.genSaltSync(11);
-    usuario.password = bcryptjs.hashSync( password, salt );
+    usuario.password = bcryptjs.hashSync(password, salt);
 
     // Guardar en BD
     await usuario.save();
 
-    res.json({        
+    res.json({
         usuario
     });
 }
 
-const usuariosPut = async (req = request, res = response) => {
+const usuariosPut = async(req = request, res = response) => {
 
     const { id } = req.params;
     const { _id, password, google, correo, ...resto } = req.body;
-    
+
 
     // TODO validar contra base de datos
-    if ( password ) {
+    if (password) {
         // Encriptar password
         const salt = bcryptjs.genSaltSync(11);
         resto.password = bcryptjs.hashSync(password, salt);
     }
 
-    const usuario = await Usuario.findByIdAndUpdate( id, resto  );
+    const usuario = await Usuario.findByIdAndUpdate(id, resto);
+    // Para llamar a este m茅todo findByIdAndUpdate en la conexi贸n de mongo en \database\config.js al
+    // realizar la conexi贸n este par谩metro debe estar indicado: useFindAndModify: false
 
     res.json({
         msg: 'put API - controlador',
@@ -77,19 +83,21 @@ const usuariosPatch = (req = request, res = response) => {
         msg: 'patch API - controlador'
     });
 }
-const usuariosDelete = async (req = request, res = response) => {
+const usuariosDelete = async(req = request, res = response) => {
     const { id } = req.params;
-    const usuarioAutenticado = req.usuario;
+    //const usuarioAutenticado = req.usuario;
+
     //const uid = req.uid;
-    // Borrado f韘ico:
+
+    // Borrado f铆sico:
     // const usuario = await Usuario.findByIdAndDelete(id);
 
-    // Borrado "l骻ico":
+    // Borrado "l贸gico":
     const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
 
     res.json({
-        usuario,
-        usuarioAutenticado
+        usuario
+        //,usuarioAutenticado
         //,
         //uid
     });
@@ -103,4 +111,3 @@ module.exports = {
     usuariosPatch,
     usuariosDelete
 }
-

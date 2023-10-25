@@ -12,10 +12,10 @@ const UsuarioSchema = Schema({
     },
     password: {
         type: String,
-        required: [true, 'La contraseña es obligatoria']
+        required: [true, 'La contraseï¿½a es obligatoria']
     },
     img: {
-        type: String,        
+        type: String,
     },
     rol: {
         type: String,
@@ -32,11 +32,12 @@ const UsuarioSchema = Schema({
     },
 });
 
-// Quitar el campo versión y contraseña cuando desde el controlador se devuelve la llamada al postman (por ejemplo): es.json(...
-UsuarioSchema.methods.toJSON = function () {
+// Overwrite toJSON method (se hace con una funciÃ³n normal, no una funciÃ³n de flecha porque se usa el this)
+// Quitar el campo versiÃ³n y contraseÃ±a cuando desde el controlador se devuelve la llamada al postman (por ejemplo): es.json(...
+UsuarioSchema.methods.toJSON = function() {
     const { __v, password, _id, ...usuario } = this.toObject();
-    usuario.uid =  _id;    
+    usuario.uid = _id;
     return usuario;
 }
 
-module.exports = model( 'Usuario', UsuarioSchema );
+module.exports = model('Usuario', UsuarioSchema);
